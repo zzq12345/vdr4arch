@@ -4,13 +4,20 @@
 pkgbase=vdr-epg-daemon
 pkgname=('epgd' 'mariadb-epglv')
 pkgver=1.1.146
-pkgrel=2
+pkgrel=3
 url='http://projects.vdr-developer.org/projects/vdr-epg-daemon'
 arch=('x86_64' 'i686' 'arm' 'armv6h' 'armv7h')
 license=('GPL2')
 makedepends=('curl' 'git' 'imlib2' 'jansson' 'libarchive' 'libjpeg' 'libmariadbclient' 'libmicrohttpd' 'libxslt' 'python')
-source=("https://projects.vdr-developer.org/git/vdr-epg-daemon.git/snapshot/$pkgbase-$pkgver.tar.bz2")
-md5sums=('6a892aedd6af850be6880d702b9222d5')
+source=("https://projects.vdr-developer.org/git/vdr-epg-daemon.git/snapshot/$pkgbase-$pkgver.tar.bz2"
+        'makefile.patch')
+md5sums=('6a892aedd6af850be6880d702b9222d5'
+         '7a025c01cb55f61d97d41d9398ec3683')
+
+prepare() {
+  cd "$srcdir/$pkgbase-$pkgver"
+  patch -p1 -i "$srcdir/makefile.patch"
+}
 
 build() {
   cd "$srcdir/$pkgbase-$pkgver"
@@ -23,9 +30,12 @@ package_epgd() {
 
   cd "$srcdir/$pkgbase-$pkgver"
 
-  make -j1 PREFIX=/usr SYSTEMDDEST="$pkgdir/usr/lib/systemd/system" DESTDIR="$pkgdir" install
+  make -j1 \
+    PREFIX=/usr \
+    SYSTEMDDEST="$pkgdir/usr/lib/systemd/system" \
+    DESTDIR="$pkgdir" \
+    install-epgd install-epghttpd install-includes install-systemd
 
-  rm "$pkgdir/usr/lib/mysql/plugin/mysqlepglv.so"
   cd $pkgdir
   backup=($(find etc -type f))
 }
@@ -35,6 +45,7 @@ package_mariadb-epglv() {
   depends=('libmariadbclient')
   backup=("usr/lib/mysql/plugin/mysqlepglv.so")
   install='mariadb-epglv.install'
-  cd "$srcdir/$pkgbase-$pkgver"
-  install -Dm755 epglv/mysqlepglv.so "$pkgdir/$(mysql_config --plugindir)/mysqlepglv.so"
+
+  cd "$srcdir/$pkgbase-$pkgver/epglv"
+  make -j1 PREFIX=/usr DESTDIR="$pkgdir" install
 }

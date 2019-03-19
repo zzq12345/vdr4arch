@@ -1,0 +1,77 @@
+--- a/Make.config
++++ b/Make.config
+@@ -13,6 +13,7 @@ _PLGDEST     = $(DESTDIR)$(PREFIX)/lib/epgd/plugins
+ PLGDEST      = $(PREFIX)/lib/epgd/plugins
+ CONFDEST     = $(DESTDIR)/etc/epgd
+ HTTPDEST     = $(DESTDIR)/var/epgd/www
++INCDEST      = $(DESTDIR)$(PREFIX)/include
+ DEBUG        = 1
+ #USE_CLANG   = 1
+ 
+--- a/Makefile
++++ b/Makefile
+@@ -93,7 +93,7 @@ dist: clean
+ 	@-rm -rf $(TMPDIR)/$(ARCHIVE)
+ 	@echo Distribution package created as $(ARCHIVE).tgz
+ 
+-install: install-epgd install-epglv install-epghttpd
++install: install-epgd install-epglv install-epghttpd install-includes
+ 	make install-$(INIT_SYSTEM)
+ 
+ install-epgd: hlib $(TARGET) $(HTTPTARGET) install-scripts install-config install-plugins
+@@ -122,6 +122,14 @@ install-systemd:
+ 		systemctl daemon-reload
+    endif
+ 
++install-includes:
++	if ! test -d $(INCDEST)/$(TARGET); then \
++		mkdir -p $(INCDEST)/$(TARGET); \
++		chmod a+rx $(INCDEST)/$(TARGET); \
++	fi
++	find . \( -path ./$(DESTDIR) -o -path ./PLUGINS -o -path ./epglv \) -prune -o -name '*.h' -exec cp -f --parents \{\} $(INCDEST)/$(TARGET)/ \;
++	sed 's|/usr/local|$(PREFIX)|' Make.config > $(INCDEST)/$(TARGET)/Make.config
++
+ cppchk:
+ 	cppcheck --language=c++ --template="{file}:{line}:{severity}:{message}" --quiet --force *.c *.h \
+       scraper/thetvdbscraper/*.c scraper/thetvdbscraper/*.h scraper/themoviedbscraper/*.c scraper/themoviedbscraper/*.h \
+@@ -190,7 +198,7 @@ install-plugins: plugins
+ 
+ install-scripts:
+ 	if ! test -d $(_BINDEST); then \
+-		mkdir -p "$(_BINDEST)" \
++	   mkdir -p $(_BINDEST); \
+ 	   chmod a+rx $(_BINDEST); \
+ 	fi
+ 	install -D ./scripts/epgd-*[!~] $(_BINDEST)/
+diff --git a/epglv/Makefile b/epglv/Makefile
+index 917fb23..99e3667 100644
+--- a/epglv/Makefile
++++ b/epglv/Makefile
+@@ -34,17 +34,24 @@ all: $(TARGET)
+ $(TARGET): $(OBJS)
+ 	$(CC) $(CPP_FLAGS) -pipe -O3 -shared -o $(TARGET) $(OBJS)
+ 
+-install: $(TARGET)
++install: $(TARGET) install-includes
+ 	strip $(TARGET)
+ 	if ! test -f $(DESTDIR)/$(MYSQL_PLGDIR)/$(TARGET); then \
+-	   install -D --mode=644 -t $(DESTDIR)/$(MYSQL_PLGDIR) $(TARGET); \
++	   install -D --mode=755 -t $(DESTDIR)/$(MYSQL_PLGDIR) $(TARGET); \
+ 	fi
+ 
+ forceinstall: $(TARGET)
+ 	strip $(TARGET)
+-	install -D --mode=644 -t $(DESTDIR)/$(MYSQL_PLGDIR) $(TARGET); \
++	install -D --mode=755 -t $(DESTDIR)/$(MYSQL_PLGDIR) $(TARGET); \
+ 	$(_BINDEST)/epgd-import-epglv
+ 
++install-includes:
++	if ! test -d $(INCDEST)/mysql; then \
++		mkdir -p $(INCDEST)/mysql; \
++		chmod a+rx $(INCDEST)/mysql; \
++	fi
++	cp -f src/epglv.h $(INCDEST)/mysql/
++
+ clean:
+ 	-rm -f $(TARGET) src/*.o src/*~ *~
+ 
