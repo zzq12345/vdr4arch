@@ -1,0 +1,13 @@
+--- a/Makefile
++++ b/Makefile
+@@ -22,6 +22,10 @@ $(SOFILE): $(OBJS)
+ 	$(CC) $(CFLAGS) -shared $(OBJS) $(LIBS) -o $@
+
+ install:  $(SOFILE) install-config
++	if ! test -d $(_PLGDEST); then \
++	   mkdir -p $(_PLGDEST); \
++	   chmod a+rx $(_PLGDEST); \
++	fi
+ 	install -D $(SOFILE) $(_PLGDEST)/
+
+ clean:

@@ -1,0 +1,40 @@
+# This PKGBUILD is part of the VDR4Arch project [https://github.com/vdr4arch]
+
+# Maintainer: Christopher Reimer <mail+vdr4arch[at]c-reimer[dot]de>
+pkgname=epgd-tvsp
+_gitver=1e272932f1273adabc681ec34bbae05a37ddfa4f
+pkgver=0.0.3.r14.g1e27293
+pkgrel=1
+pkgdesc='TV SPIELFILM loader for epgd'
+url='https://github.com/chriszero/epgd-plugin-tvsp'
+arch=('x86_64' 'i686' 'arm' 'armv6h' 'armv7h' 'aarch64')
+license=('GPL2')
+depends=('epgd')
+makedepends=('git')
+source=("git+${url}.git#commit=${_gitver}"
+        'makefile.patch')
+md5sums=('SKIP'
+         '028c3a9167a559970a264a6b7e809e78')
+
+prepare() {
+	cd ${srcdir}/epgd-plugin-tvsp
+	patch -p1 -i ${srcdir}/makefile.patch
+}
+
+pkgver() {
+	cd ${srcdir}/epgd-plugin-tvsp
+	printf "%s.r%s.g%s" \
+		"$(awk '/TVSP_VERSION/ {gsub(/"/,""); printf $3}' tvsp.h)" \
+		"$(git rev-list --count HEAD)" \
+		"$(git rev-parse --short HEAD)"
+}
+
+build() {
+	cd ${srcdir}/epgd-plugin-tvsp
+	make EPGD_SRC="/usr/include/epgd"
+}
+
+package() {
+	cd ${srcdir}/epgd-plugin-tvsp
+	make EPGD_SRC="/usr/include/epgd" DESTDIR="${pkgdir}" install
+}
