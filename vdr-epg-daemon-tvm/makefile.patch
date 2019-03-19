@@ -1,0 +1,13 @@
+--- a/Makefile
++++ b/Makefile
+@@ -27,6 +27,10 @@ extst: xmltest.c
+ 	g++ -ggdb -I$(EPGD_SRC) $(EPGD_SRC)/lib/common.c $(EPGD_SRC)/lib/config.c -lpthread xmltest.c -o extst
+
+ install:  $(SOFILE) install-config
++	if ! test -d $(_PLGDEST); then \
++	   mkdir -p $(_PLGDEST); \
++	   chmod a+rx $(_PLGDEST); \
++	fi
+ 	install -D $(SOFILE) $(_PLGDEST)/
+
+ clean:

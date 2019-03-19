@@ -1,0 +1,21 @@
+pkgbase = epgd-tvm
+	pkgdesc = TVMovie loader Plugin for EPGd
+	pkgver = 0.1.4.r20.gb2c6a81
+	pkgrel = 1
+	url = https://github.com/3PO/epgd-plugin-tvm
+	arch = x86_64
+	arch = i686
+	arch = arm
+	arch = armv6h
+	arch = armv7h
+	arch = aarch64
+	license = GPL2
+	makedepends = git
+	depends = epgd
+	source = git+https://github.com/3PO/epgd-plugin-tvm.git#commit=b2c6a813e173bd98472916822a7f548024b04dc6
+	source = makefile.patch
+	md5sums = SKIP
+	md5sums = 99634b06804141a959dfb9aba04f9dc5
+
+pkgname = epgd-tvm
+

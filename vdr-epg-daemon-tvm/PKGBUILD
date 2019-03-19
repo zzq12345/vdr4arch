@@ -1,0 +1,40 @@
+# This PKGBUILD is part of the VDR4Arch project [https://github.com/vdr4arch]
+
+# Maintainer: Christopher Reimer <mail+vdr4arch[at]c-reimer[dot]de>
+pkgname=epgd-tvm
+_gitver=b2c6a813e173bd98472916822a7f548024b04dc6
+pkgver=0.1.4.r20.gb2c6a81
+pkgrel=1
+pkgdesc='TVMovie loader Plugin for EPGd'
+url='https://github.com/3PO/epgd-plugin-tvm'
+arch=('x86_64' 'i686' 'arm' 'armv6h' 'armv7h' 'aarch64')
+license=('GPL2')
+depends=('epgd')
+makedepends=('git')
+source=("git+${url}.git#commit=${_gitver}"
+        'makefile.patch')
+md5sums=('SKIP'
+         '99634b06804141a959dfb9aba04f9dc5')
+
+prepare() {
+	cd ${srcdir}/epgd-plugin-tvm
+	patch -p1 -i ${srcdir}/makefile.patch
+}
+
+pkgver() {
+	cd ${srcdir}/epgd-plugin-tvm
+	printf "%s.r%s.g%s" \
+		"$(awk '/TVM_VERSION/ {gsub(/"/,""); printf $3}' tvm.h)" \
+		"$(git rev-list --count HEAD)" \
+		"$(git rev-parse --short HEAD)"
+}
+
+build() {
+	cd ${srcdir}/epgd-plugin-tvm
+	make EPGD_SRC="/usr/include/epgd"
+}
+
+package() {
+	cd ${srcdir}/epgd-plugin-tvm
+	make EPGD_SRC="/usr/include/epgd" DESTDIR="${pkgdir}" install
+}
