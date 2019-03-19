@@ -5,7 +5,7 @@ pkgname=vdr-mpv
 pkgver=0.0.4_6_g559ef4b
 _commit=559ef4b794bb52d577c69e8ed3fcce34e10cd3f0
 _vdrapi=2.4.1
-pkgrel=4
+pkgrel=5
 pkgdesc="mpv player plugin for VDR"
 url="http://projects.vdr-developer.org/projects/plg-mpv"
 arch=('x86_64' 'i686' 'arm' 'armv6h' 'armv7h')
@@ -14,10 +14,20 @@ depends=('mpv' "vdr-api=${_vdrapi}")
 makedepends=('git')
 _plugname=${pkgname//vdr-/}
 source=("git://projects.vdr-developer.org/vdr-plugin-mpv.git#commit=$_commit"
+        '13_mpv_step10s.patch::http://minidvblinux.de/git/?a=blob&p=vdr-plugin-mpv&h=48577713f49fd3d42a9955eb558c7a4fb56a0a20'
+        '15_mpv_wait-timeout.patch::http://minidvblinux.de/git/?a=blob&p=vdr-plugin-mpv&h=e373eedf3b7a9c1d27c489e60346da250e7a391b'
         "50-${pkgname//vdr-/}.conf")
 backup=("etc/vdr/conf.avail/50-${pkgname//vdr-/}.conf")
 md5sums=('SKIP'
+         '0b385acbc38fe1cdf0e753ec9f6a3bd8'
+         '4f52a23408cf678bd78874ae1ec4a8c8'
          'd1f90a5bc8d735b48764e12384324750')
+
+prepare() {
+  cd "${srcdir}/vdr-plugin-${_plugname}"
+  patch -p1 -i ${srcdir}/13_mpv_step10s.patch
+  patch -p1 -i ${srcdir}/15_mpv_wait-timeout.patch
+}
 
 pkgver() {
   cd "${srcdir}/vdr-plugin-${_plugname}"
