@@ -1,0 +1,44 @@
+branches:
+  only:
+  - master
+
+arch:
+  - amd64
+
+os: linux
+
+dist: bionic
+
+env:
+  - REPONAME=$(basename $TRAVIS_REPO_SLUG) ALARCH=x86_64
+
+language: generic
+
+git:
+  quiet: true
+
+cache:
+  directories:
+    - $HOME/src
+
+before_script:
+  - sudo mkdir -p /run/shm/
+  - git clone https://github.com/$TRAVIS_REPO_SLUG.git --branch gh-pages --single-branch $HOME/repo || true
+  - rm -fR $HOME/repo/.git
+
+script:
+  - sudo ./.ci/mkrepo.sh $USER $TRAVIS_BUILD_DIR $ALARCH
+
+before_deploy:
+  - sudo chown -R $USER $HOME/repo
+  - ./.ci/createlinks.sh $HOME/repo $REPONAME
+  - ./.ci/genindex.sh $HOME/repo $REPONAME
+
+deploy:
+  provider: pages
+  token: $GITHUB_TOKEN
+  skip_cleanup: true
+  local_dir: $HOME/repo/
+  on:
+    repo: $TRAVIS_REPO_SLUG
+    branch: master
