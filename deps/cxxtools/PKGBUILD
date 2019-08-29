@@ -9,11 +9,17 @@ url="http://www.tntnet.org"
 arch=('x86_64' 'i686' 'arm' 'armv6h' 'armv7h')
 license=('GPL2')
 depends=('bash' 'gcc-libs' 'libnsl')
-source=("http://www.tntnet.org/download/${pkgname}-${pkgver}.tar.gz")
-md5sums=('aab00068ae5237435b37ac86f2ac7576')
+makedepends=('git')
+source=("git+https://github.com/maekitalo/cxxtools.git#tag=v${pkgver}")
+md5sums=('SKIP')
+
+prepare() {
+  cd "${srcdir}/${pkgname}"
+  ./autogen.sh
+}
 
 build() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd "${srcdir}/${pkgname}"
 
   ./configure --prefix=/usr \
               --disable-static \
@@ -23,6 +29,6 @@ build() {
 }
 
 package() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd "${srcdir}/${pkgname}"
   make DESTDIR="${pkgdir}" install
 }

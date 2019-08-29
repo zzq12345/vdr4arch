@@ -9,11 +9,12 @@ pkgbase = cxxtools
 	arch = armv6h
 	arch = armv7h
 	license = GPL2
+	makedepends = git
 	depends = bash
 	depends = gcc-libs
 	depends = libnsl
-	source = http://www.tntnet.org/download/cxxtools-2.2.1.tar.gz
-	md5sums = aab00068ae5237435b37ac86f2ac7576
+	source = git+https://github.com/maekitalo/cxxtools.git#tag=v2.2.1
+	md5sums = SKIP
 
 pkgname = cxxtools
 
