@@ -9,11 +9,17 @@ url="http://www.tntnet.org"
 arch=('x86_64' 'i686' 'arm' 'armv6h' 'armv7h')
 license=('GPL2')
 depends=('cxxtools' 'sqlite')
-source=("http://www.tntnet.org/download/${pkgname}-${pkgver}.tar.gz")
-md5sums=('31d16243566fe226119e40e194119b44')
+makedepends=('git')
+source=("git+https://github.com/maekitalo/tntdb.git#commit=9a3d892bd73b9cb73764ba52c658d4f1665cfa28")
+md5sums=('SKIP')
+
+prepare() {
+  cd "${srcdir}/${pkgname}/${pkgname}"
+  ./autogen.sh
+}
 
 build() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd "${srcdir}/${pkgname}/${pkgname}"
   ./configure --prefix=/usr \
               --disable-static \
               --without-postgresql \
@@ -23,7 +29,7 @@ build() {
 }
 
 package() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd "${srcdir}/${pkgname}/${pkgname}"
 
   make DESTDIR="${pkgdir}" install
 }
