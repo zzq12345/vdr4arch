@@ -9,11 +9,12 @@ pkgbase = tntnet
 	arch = armv6h
 	arch = armv7h
 	license = GPL2
+	makedepends = git
 	depends = cxxtools
 	depends = openssl
 	depends = zlib
-	source = http://www.tntnet.org/download/tntnet-2.2.1.tar.gz
-	md5sums = febe799675c1b8b2f7259bad30cf6f23
+	source = git+https://github.com/maekitalo/tntnet.git#tag=v2.2.1
+	md5sums = SKIP
 
 pkgname = tntnet
 
