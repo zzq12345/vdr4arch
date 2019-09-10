@@ -1,0 +1,33 @@
+jobs:
+- job: hostprep
+  steps:
+  - script: ./.ci/hostprep.sh $(Pipeline.Workspace) $(Build.Repository.Uri)
+
+- job: mkrepo
+  dependsOn:
+  - hostprep
+  steps:
+  - script: sudo ./.ci/mkrepo.sh $USER $(Pipeline.Workspace) $(Build.SourcesDirectory) x86_64
+
+- job: createlinks
+  dependsOn:
+  - mkrepo
+  steps:
+  - script: |
+      sudo chown -R $USER $(Pipeline.Workspace)/repo
+      ./.ci/createlinks.sh $(Pipeline.Workspace)/repo $(Build.Repository.Name)
+    displayName: 'Why necessary?'
+
+- job: genindex
+  dependsOn:
+  - createlinks
+  steps:
+  - script: ./.ci/genindex.sh $(Pipeline.Workspace)/repo $(Build.Repository.Name)
+
+#- stage: deploy
+#  dependsOn:
+#  - createindex
+#  jobs:
+#  - job:
+#    steps:
+#    - script: |
