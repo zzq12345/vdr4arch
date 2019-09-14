@@ -1,0 +1,71 @@
+version: 2.1
+
+commands:
+  barebones:
+    steps:
+      - run:
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y qemu-user-static
+            sudo mkdir -p /run/shm/
+      - checkout
+      - attach_workspace:
+          at: /home/circleci
+
+jobs:
+  hostprep:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - run:
+          command: |
+            sudo apt-get update
+            sudo apt-get install --no-install-recommends -y asciidoc xsltproc
+            git clone https://git.archlinux.org/arch-install-scripts.git $HOME/arch-install-scripts
+            make -j2 -C $HOME/arch-install-scripts
+            git clone $CIRCLE_REPOSITORY_URL --branch gh-pages --single-branch $HOME/repo || true
+            rm -fR $HOME/repo/.git
+      - persist_to_workspace:
+          root: /home/circleci
+          paths:
+            - arch-install-scripts
+            - repo
+
+  x86_64:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - barebones
+      - run:
+          command: |
+            sudo ./.circleci/mkrepo.sh $USER $HOME/project $CIRCLE_PROJECT_REPONAME $CIRCLE_JOB
+      - persist_to_workspace:
+          root: /home/circleci/repo
+          paths:
+            - x86_64
+
+  armv7h:
+    machine:
+      image: ubuntu-1604:201903-01
+    steps:
+      - barebones
+      - run:
+          no_output_timeout: 30m
+          command: |
+            sudo ./.circleci/mkrepo.sh $USER $HOME/project $CIRCLE_PROJECT_REPONAME $CIRCLE_JOB
+      - persist_to_workspace:
+          root: /home/circleci/repo
+          paths:
+            - armv7h
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - hostprep
+      - x86_64:
+          requires:
+            - hostprep
+      - armv7h:
+          requires:
+            - hostprep
