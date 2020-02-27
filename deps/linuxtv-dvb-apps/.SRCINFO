@@ -1,7 +1,7 @@
 pkgbase = linuxtv-dvb-apps
 	pkgdesc = Linux DVB API applications and utilities
 	pkgver = 1505
-	pkgrel = 2
+	pkgrel = 3
 	url = https://www.linuxtv.org
 	arch = x86_64
 	arch = i686

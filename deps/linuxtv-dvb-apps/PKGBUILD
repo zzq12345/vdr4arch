@@ -5,7 +5,7 @@
 
 pkgname=linuxtv-dvb-apps
 pkgver=1505
-pkgrel=2
+pkgrel=3
 _hgrev=3d43b280298c
 pkgdesc='Linux DVB API applications and utilities'
 arch=('x86_64' 'i686' 'arm' 'armv6h' 'armv7h' 'aarch64')
@@ -28,6 +28,7 @@ prepare() {
 	patch -p1 -i ${srcdir}/0003-handle-static-shared-only-build.patch
 	patch -p1 -i ${srcdir}/0005-utils-fix-build-with-kernel-headers-4.14.patch
 	patch -p1 -i ${srcdir}/linuxtv-dvb-apps-1.1.1.20100223-perl526.patch
+	sed -e '/dvbdate/d' -i ${srcdir}/dvb-apps/util/Makefile
 }
 
 pkgver() {
